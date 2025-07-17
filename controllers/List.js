@@ -3,18 +3,38 @@ const prisma = new PrismaClient();
 
 exports.getList = async (req, res) => {
   try {
+    const { date } = req.query
+    const startDate = new Date(date)
+    startDate.setUTCHours(0, 0, 0, 0)
+    const endDate = new Date(date)
+    endDate.setUTCHours(23, 59, 59, 0)
+
     const incomes = await prisma.income.findMany({
+      where: {
+        created_at: {
+          gte: startDate,
+          lte: endDate
+        }
+      },
       include: {
         type: true,
       },
     });
-    const expenses = await prisma.expenses.findMany();
+    const expenses = await prisma.expenses.findMany({
+      where: {
+        created_at: {
+          gte: startDate,
+          lte: endDate
+        }
+      },
+    });
     const list = [
       ...incomes.map((item) => ({
         id: item.id,
         type: "income",
-        typeId: item.type.name,
+        typeName: item.type.name,
         amount: item.amount,
+        count: item.count,
         created_at: item.created_at,
       })),
       ...expenses.map((item) => ({
@@ -44,7 +64,6 @@ exports.getList = async (req, res) => {
 exports.getSummary = async (req, res) => {
   try {
     const { date } = req.query;
-
     const startDate = new Date(date);
     startDate.setUTCHours(0, 0, 0, 0);
     const endDate = new Date(date);
