@@ -9,32 +9,36 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider     = "postgresql"
+  url          = env("DATABASE_URL")
+  directUrl    = env("DIRECT_URL")
+  relationMode = "prisma"
 }
 
 model Type {
-  id Int @id @default(autoincrement())
-  name String
+  id         Int      @id @default(autoincrement())
+  name       String
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
-  income Income[]
+  income     Income[]
 }
 
 model Income {
-  id Int @id @default(autoincrement())
-  amount Int
-  count Int
-  type Type @relation(fields: [typeId],references: [id],onDelete: Cascade)
-  typeId Int
+  id         Int      @id @default(autoincrement())
+  amount     Int
+  count      Int
+  type       Type     @relation(fields: [typeId], references: [id], onDelete: Cascade)
+  typeId     Int
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
+
+  @@index([typeId])
 }
 
 model Expenses {
-  id Int @id @default(autoincrement())
-  amount Int
-  reason String
+  id         Int      @id @default(autoincrement())
+  amount     Int
+  reason     String
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 }
